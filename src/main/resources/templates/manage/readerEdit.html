@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base href="../../">
+    <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <title>
+        借阅人管理系统
+    </title>
+    <link rel="stylesheet" href="/css/mdb.min.css">
+    <!-- Nucleo Icons -->
+    <link th:href="@{/css/nucleo-icons.css}" rel="stylesheet" />
+    <!-- CSS Files -->
+    <link th:href="@{/css/black-dashboard.css}" rel="stylesheet" />
+    <style>
+        * {
+            -webkit-user-drag: none;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="fragment::sidebar"></div>
+    <div class="main-panel">
+        <div th:replace="fragment::navbar"></div>
+
+        <div class="content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <button class="btn btn-success btn-wd" onclick="location.href='/manage/readerManage'">
+                                <i class="tim-icons icon-minimal-left"></i>
+                                返回
+                            </button>
+                            <h1></h1>
+                            <h4 class="title">图书信息修改</h4>
+                        </div>
+                        <div class="card-body">
+                            <form name="edit" th:action="'/manage/readerManage/readerEdit?rid='+ ${reader.getRid()}" method="post">
+                                <div class="row">
+                                    <div class="col-md-6 pb-md-1">
+                                        <div class="form-group">
+                                            <label>身份证</label>
+                                            <input name="rid" type="text" class="form-control" th:value="${reader.getRid()}" required style="color: white">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pb-md-1">
+                                        <div class="form-group">
+                                            <label>姓名</label>
+                                            <input name="rname" type="text" class="form-control" placeholder="必填" th:value="${reader.getRname()}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-2 pb-md-1">
+                                        <div class="form-group">
+                                            <label>年龄</label>
+                                        <input name="rage" type="number" class="form-control" placeholder="保密" th:value="${reader.getRage()}!=0?${reader.getRage()}:''">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1 pr-md-1">
+                                        <div class="form-group">
+                                            <label>性别</label>
+                                            <input id="rsex" name="rsex" type="text" class="form-control" onfocus="this.blur()" th:value="${reader.getRsex()}">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1 pl-sm-0">
+                                        <br/>
+                                        <div class="dropdown">
+                                            <button href="#" class="dropdown-toggle btn" data-toggle="dropdown">选择
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-sm dropdown-black">
+                                                <li><a href="javascript:void(0)" onclick="document.getElementById('rsex').setAttribute('value', '男')" class="dropdown-item">男</a></li>
+                                                <li class="dropdown-divider"></li>
+                                                <li><a href="javascript:void(0)" onclick="document.getElementById('rsex').setAttribute('value', '女')" class="dropdown-item">女</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pb-md-1">
+                                        <div class="form-group">
+                                            <label>联系方式</label>
+                                            <input name="rtel" type="text" class="form-control" placeholder="必填" th:value="${reader.getRtel()}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-sm-auto pr-md-1">
+                                        <button type="submit" class="btn btn-fill btn-primary bb">保存</button>
+                                    </div>
+                                    <div class="col-sm-auto pr-md-1">
+                                        <button type="reset" class="btn btn-fill btn-warning bb">重置</button>
+                                    </div>
+                                    <div class="col-sm-auto pr-md-1">
+                                        <button type="button" class="btn btn-fill btn-danger bb" data-toggle="modal" data-target="#myModal">删除</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragment::footer"></div>
+    </div>
+    <div class="modal fade modal-default" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">
+                        是否确认删除？
+                    </h4>
+                </div>
+                <div class="modal-body" th:utext="'身份证号: ' + ${reader.getRid()} + '<br/>姓名: ' + ${reader.getRname()}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick=deleteBook()>
+                        确认删除
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<form action="/manage/readerManage" method="post" id="delete">
+    <input type="hidden" name="delete" value="true">
+</form>
+
+<script th:src="@{/js/core/jquery.min.js}"></script>
+<script th:src="@{/js/core/popper.min.js}"></script>
+<script th:src="@{/js/core/bootstrap.min.js}"></script>
+<script th:src="@{/js/plugins/bootstrap-notify.js}"></script>
+<script th:src="@{/js/plugins/perfect-scrollbar.jquery.min.js}"></script>
+<script th:src="@{/js/black-dashboard.js}"></script>
+<script th:inline="javascript">
+    var msg = [[${msg}]];
+    var msgLevel = [[${msgLevel}]];
+    var msgIcon = [[${msgIcon}]];
+    if(msg!=null){
+        $.notify({
+            icon: "tim-icons " + msgIcon,
+            message: "<b>" + msg + "</b>"
+        }, {
+            type: msgLevel,
+            timer: 2000,
+            placement: {
+                from: 'top',
+                align: 'center'
+            }
+        });
+    }
+
+    function deleteBook(){
+        $.ajax({url: "/manage/readerManage", data: {"delete": true, "rid": [[${reader.getRid()}]]}, type: "post", success: function(){
+                $('.bb').attr("disabled", true);
+                $('#delete').submit();
+            }, error: function(){
+                $.notify({
+                    icon: "tim-icons icon-alert-circle-exc",
+                    message: "<b>删除失败</b>"
+                }, {
+                    type: "danger",
+                    timer: 2000,
+                    placement: {
+                        from: 'top',
+                        align: 'center'
+                    }
+                });
+            }})
+    }
+</script>
+</body>
+</html>

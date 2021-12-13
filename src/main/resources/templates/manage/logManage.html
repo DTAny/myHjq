@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base href="../">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon.png">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <title>
+        借阅记录
+    </title>
+    <!-- Nucleo Icons -->
+    <link th:href="@{css/nucleo-icons.css}" rel="stylesheet" />
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/all.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link th:href="@{css/black-dashboard.css}" rel="stylesheet" />
+    <!-- Plugin file -->
+    <link rel="stylesheet" href="css/addons/datatables.min.css">
+    <style>
+        * {
+            -webkit-user-drag: none;
+        }
+        .pagination .page-item .page-link {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="fragment::sidebar"></div>
+    <div class="main-panel">
+        <div th:replace="fragment::navbar"></div>
+        <div class="content" id="demo">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card ">
+                        <div class="card-header">
+                            <h4 class="title">借阅记录</h4>
+<!--                            <button class="btn btn-fill btn-success btn-icon" data-toggle='modal' data-target='#myModal' style="position: absolute; z-index: 3" onclick="addData()">-->
+<!--                                <i class="tim-icons icon-simple-add">  </i>-->
+<!--                            </button>-->
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <table class="table" id="mdbtable">
+                                    <thead>
+                                    <tr>
+                                        <th>图书编号</th>
+                                        <th>借阅人身份证号</th>
+                                        <th>借阅时间</th>
+                                        <th>还书期限</th>
+                                        <th>还书时间</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragment::footer"></div>
+    </div>
+    <div class="modal fade modal-black" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="modal-content">
+            </div>
+        </div>
+    </div>
+</div>
+<form action="manage/logManage" method="post" id="delete">
+    <input type="hidden" name="delete" value="true">
+    <input type="hidden" name="bid" id="bid">
+</form>
+
+<script th:src="@{js/core/jquery.min.js}"></script>
+<script th:src="@{js/core/popper.min.js}"></script>
+<script th:src="@{js/core/bootstrap.min.js}"></script>
+<script th:src="@{js/plugins/bootstrap-notify.js}"></script>
+<script th:src="@{js/plugins/perfect-scrollbar.jquery.min.js}"></script>
+<script th:src="@{js/black-dashboard.js}"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- Plugin file -->
+<script src="js/addons/datatables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var table = $('#mdbtable').dataTable(   {
+                "language" : {
+                    sProcessing : "处理中...",
+                    sLengthMenu : "显示 _MENU_ 项结果",
+                    sZeroRecords : "没有匹配结果",
+                    sInfo : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                    sInfoEmpty : "显示第 0 至 0 项结果，共 0 项",
+                    sInfoFiltered : "(由 _MAX_ 项结果过滤)",
+                    sInfoPostFix : "",
+                    sSearch : "搜索:",
+                    sUrl : "",
+                    sEmptyTable : "没有借阅记录",
+                    sLoadingRecords : "载入中...",
+                    sInfoThousands : ",",
+                    oPaginate : {
+                        sFirst : "首页",
+                        sPrevious : "上页",
+                        sNext : "下页",
+                        sLast : "末页"
+                    },
+                    "oAria" : {
+                        "sSortAscending" : ": 以升序排列此列",
+                        "sSortDescending" : ": 以降序排列此列"
+                    }
+                },
+                "lengthChange": false,
+                "pageLength": 10,
+                "pagingType": "full_numbers",
+                "ajax": {
+                    url: "/logManage/table",
+                    dataSrc: ""
+                },
+                "columns": [
+                    { "name": "图书编号", "data": "bid", "defaultContent": "" },
+                    { "name": "借阅人身份证号", "data": "rid", "defaultContent": "" },
+                    { "name": "借阅时间", "data": "ldate", "defaultContent": "" },
+                    { "name": "还书期限", "data": "ddl", "defaultContent": "" },
+                    { "name": "还书时间", "data": null, "render": function(data, type, row, meta){
+                            return row.rdate == null?
+                                "-------":
+                                row.rdate;
+                        } },
+                    { "name": "状态", "data": null, "render": function(data, type, row, meta){
+                        var d = new Date();
+                        var time = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds() + '.' + d.getMilliseconds();
+                        return row.rdate == null ?
+                            (row.ddl > time ? "<span style='color: yellow'>未还书</span>" : "<span style='color: red'>已逾期</span>"):
+                            "<span style='color: yellowgreen'>已还书</span>";
+                        } },
+                    { "name": "操作", "data": null, "orderable": false, "render": function(data, type, row, meta){
+                        if (row.rdate == null)
+                            return "<button class='btn btn-fill btn-primary' data-toggle='modal' data-target='#myModal' onclick='addDdl(" + row.bid + ")'>延期</button>";
+                        else
+                            return "";
+                        }},
+                    // { "name": "操作", "data": null, "orderable": false, "render": function(data, type, row, meta){
+                    //         return "<button class='btn btn-fill btn-primary' onclick='location.href=\"manage/logManage/logEdit?bid=" + row.bid + "\"'>修改</button>"
+                    //             // "&emsp;" +
+                    //             // "<button class='btn btn-fill btn-danger' value='" + row.bid + "' data-toggle='modal' data-target='#myModal' onclick=\"deleteData('"+row.bid+"')\">删除</button>"
+                    //     }}
+                ],
+                "order": ['2', 'desc']
+            }
+        )
+    });
+    // function deleteLog(){
+    //     $('#delete').submit();
+    // }
+    // function deleteData(bid, ldate, rdate){
+    //     $('#modal-content').html("<div class='modal-header'>\n" +
+    //         "                    <h4 class='modal-title' id='myModalLabel'>\n" +
+    //         "                        是否确认删除？\n" +
+    //         "                    </h4>\n" +
+    //         "                </div>\n" +
+    //         "                <div class='modal-body' id='modal-body'>\n" +
+    //         "                    图书编号： " + bid +"\n" +
+    //         "                    <br/>\n" +
+    //         "                    借阅时间： " + ldate + "\n" +
+    //         "                    <br/>\n" +
+    //         "                    归还时间： " + rdate == null?"-------":rdate + "\n" +
+    //         "                </div>\n" +
+    //         "                <div class='modal-footer'>\n" +
+    //         "                    <button type='button' class='btn btn-danger' data-dismiss='modal' onclick=deleteLog()>\n" +
+    //         "                        确认删除\n" +
+    //         "                    </button>\n" +
+    //         "                    <button type='button' class='btn btn-default' data-dismiss='modal'>\n" +
+    //         "                        取消\n" +
+    //         "                    </button>\n" +
+    //         "                </div>"
+    //     )
+    //     $('#bid').attr('value', bid);
+    // }
+    function addDdl(bid){
+        $('#modal-content').html('<div class="modal-header">\n' +
+            '                    <h3>\n' +
+            '                        还书延期\n' +
+            '                    </h3>\n' +
+            '                </div>\n' +
+            '                <form class="form-group">\n' +
+            '                    <div class="modal-body">\n' +
+            '                        <div class="row">\n' +
+            '                            <div class="col-md-12 pb-md-1">\n' +
+            '                                <label>图书编号</label>\n' +
+            '                                <input type="number" class="form-control" name="bid" style="color: white" readonly value="' + bid + '">\n' +
+            '                            </div>\n' +
+            '                        </div>\n' +
+            '                        <div class="row">\n' +
+            '                            <div class="col-md-12 pb-md-1">\n' +
+            '                                <label>延期时间(月)</label>\n' +
+            '                                <input type="number" class="form-control" name="ddl" placeholder="必填" required>\n' +
+            '                            </div>\n' +
+            '                        </div>\n' +
+            '                    </div>\n' +
+            '                    <div class="modal-footer">\n' +
+            '                        <button type="submit" class="btn btn-success btn-wd">\n' +
+            '                            提交\n' +
+            '                        </button>\n' +
+            '                        <button type="button" class="btn btn-default btn-wd" data-dismiss="modal">\n' +
+            '                            取消\n' +
+            '                        </button>\n' +
+            '                    </div>\n' +
+            '                </form>');
+    }
+</script>
+<script th:inline="javascript">
+    var msg = [[${msg}]];
+    var msgLevel = [[${msgLevel}]];
+    var msgIcon = [[${msgIcon}]];
+    if(msg!=null){
+        $.notify({
+            icon: "tim-icons " + msgIcon,
+            message: "<b>" + msg + "</b>"
+        }, {
+            type: msgLevel,
+            timer: 2000,
+            placement: {
+                from: 'top',
+                align: 'center'
+            }
+        });
+    }
+</script>
+</body>
+</html>

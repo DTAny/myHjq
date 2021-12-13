@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录系统</title>
+<!--    <link th:href="@{css/custom-css-bootstrap-magic-2021-11-21.css}" rel="stylesheet">-->
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link th:href="@{/css/nucleo-icons.css}" rel="stylesheet" />
+    <link th:href="@{/css/login.css}" rel="stylesheet">
+    <link th:href="@{/css/black-dashboard.css}" rel="stylesheet">
+<!--    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">-->
+</head>
+<body>
+<div class="container table" style="margin-top: 10%">
+
+  <form class="form-signin" action="login" method="post">
+    <h2 class="form-signin-heading">图书馆管理系统登录</h2>
+    <label for="inputAccount" class="sr-only">账号</label>
+    <input type="text" id="inputAccount" class="form-control" placeholder="账号" required autofocus name="acc" onchange="change()">
+    <label for="inputPassword" class="sr-only">密码</label>
+    <input type="password" id="inputPassword" class="form-control" placeholder="密码" required name="pwd" onchange="change()">
+      <div class="">
+          <label>
+              <input type="checkbox" onchange="checkbox()"> 超管登录
+          </label>
+          <input type="hidden" value="false" name="superLogin" id="super">
+      </div>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+<!--      <br/>-->
+<!--      <div th:hidden="${msg}==null" th:class="'alert alert-dismissible '+${msgLevel}" th:text="${msg}" style="text-align: center; padding-left: 20%" id="msg">-->
+<!--      </div>-->
+  </form>
+</div>
+<script th:src="@{/js/core/jquery.min.js}"></script>
+<script th:src="@{/js/core/bootstrap.min.js}"></script>
+<script th:src="@{/js/core/popper.min.js}"></script>
+<script th:src="@{/js/plugins/bootstrap-notify.js}"></script>
+<script th:src="@{/js/plugins/perfect-scrollbar.jquery.min.js}"></script>
+<script>
+    function checkbox(){
+        document.getElementById('super').setAttribute('value', (document.getElementById('super').getAttribute('value')=='false').toString());
+    }
+    function change(){
+        $.notifyClose()
+    }
+    function showNotification(from, align, type, msg, msgIcon) {
+        $.notify({
+            icon: "tim-icons " + msgIcon,
+            message: "<b>" + msg + "</b>"
+        }, {
+            type: type,
+            timer: 4000,
+            placement: {
+                from: from,
+                align: align
+            }
+        });
+    }
+</script>
+<script th:inline="javascript">
+    if ([[${msg}]] != null) {
+        var msg = [[${msg}]];
+        var msgLevel = [[${msgLevel}]];
+        var msgIcon;
+        if (msgLevel == 'danger')
+            msgIcon = 'icon-alert-circle-exc';
+        else
+            msgIcon = 'icon-bell-55';
+        showNotification('top', 'center', msgLevel, msg, msgIcon);
+    }
+</script>
+</body>
+</html>

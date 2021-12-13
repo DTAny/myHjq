@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base href="../../">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon.png">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <title>
+        书籍管理系统
+    </title>
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <!-- Nucleo Icons -->
+    <link th:href="@{css/nucleo-icons.css}" rel="stylesheet" />
+    <!-- CSS Files -->
+    <link th:href="@{css/black-dashboard.css}" rel="stylesheet" />
+    <style>
+        * {
+            -webkit-user-drag: none;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="fragment::sidebar"></div>
+    <div class="main-panel">
+        <div th:replace="fragment::navbar"></div>
+
+        <div class="content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <button class="btn btn-success btn-wd" onclick="location.href='manage/bookManage'">
+                                <i class="tim-icons icon-minimal-left"></i>
+                                返回
+                            </button>
+                            <h1></h1>
+                            <h4 class="title">图书信息修改</h4>
+                        </div>
+                        <div class="card-body">
+                            <form name="edit" th:action="'manage/bookManage/bookEdit?bid='+ ${book.getBid()}" method="post">
+                                <div class="row">
+                                    <div class="col-md-2 pr-md-1">
+                                        <div class="form-group">
+                                            <label>图书编号</label>
+                                            <input type="number" class="form-control" th:value="${book.getBid()}" readonly style="color: white">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 pr-md-1">
+                                        <div class="form-group">
+                                            <label>可借阅状态</label>
+                                            <input id="state" name="state" type="text" class="form-control" onfocus="this.blur()" th:value="${book.getState()?'可借':'已借'}" style="color: white">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1 pl-sm-0">
+                                        <br/>
+                                        <div class="dropdown">
+                                            <button href="#" class="dropdown-toggle btn" data-toggle="dropdown">更改
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-sm dropdown-black">
+                                                <li><a href="javascript:void(0)" onclick="document.getElementById('state').setAttribute('value', '可借')" class="dropdown-item">设为可借</a></li>
+                                                <li class="dropdown-divider"></li>
+                                                <li><a href="javascript:void(0)" onclick="document.getElementById('state').setAttribute('value', '已借')" class="dropdown-item">设为已借</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pr-md-1">
+                                        <div class="form-group">
+                                            <label>书名</label>
+                                            <input name="bname" type="text" class="form-control" placeholder="必填" th:value="${book.getBname()}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pr-md-1">
+                                        <div class="form-group">
+                                            <label>作者</label>
+                                            <input name="author" type="text" class="form-control" placeholder="必填" th:value="${book.getAuthor()}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-sm-auto pr-md-1">
+                                        <button type="submit" class="btn btn-fill btn-primary bb">保存</button>
+                                    </div>
+                                    <div class="col-sm-auto pr-md-1">
+                                        <button type="reset" class="btn btn-fill btn-warning bb">重置</button>
+                                    </div>
+                                    <div class="col-sm-auto pr-md-1">
+                                        <button type="button" class="btn btn-fill btn-danger bb" data-toggle="modal" data-target="#myModal">删除</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragment::footer"></div>
+    </div>
+    <div class="modal fade modal-default" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">
+                        是否确认删除？
+                    </h4>
+                </div>
+                <div class="modal-body" th:utext="'编号: ' + ${book.bid} + '<br/>书名: ' + ${book.getBname()} + '<br/>作者: ' + ${book.getAuthor()}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick=deleteBook()>
+                        确认删除
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<form action="manage/bookManage" method="post" id="delete">
+    <input type="hidden" name="delete" value="true">
+</form>
+
+<script th:src="@{js/core/jquery.min.js}"></script>
+<script th:src="@{js/core/popper.min.js}"></script>
+<script th:src="@{js/core/bootstrap.min.js}"></script>
+<script th:src="@{js/plugins/bootstrap-notify.js}"></script>
+<script th:src="@{js/plugins/perfect-scrollbar.jquery.min.js}"></script>
+<script th:src="@{js/black-dashboard.js}"></script>
+<script th:inline="javascript">
+    var msg = [[${msg}]];
+    var msgLevel = [[${msgLevel}]];
+    var msgIcon = [[${msgIcon}]];
+    if(msg!=null){
+        $.notify({
+            icon: "tim-icons " + msgIcon,
+            message: "<b>" + msg + "</b>"
+        }, {
+            type: msgLevel,
+            timer: 2000,
+            placement: {
+                from: 'top',
+                align: 'center'
+            }
+        });
+    }
+
+    function deleteBook(){
+        $.ajax({url: "manage/bookManage", data: {"delete": true, "bid": [[${book.getBid()}]]}, type: "post", success: function(){
+            $('.bb').attr("disabled", true);
+            $('#delete').submit();
+        }, error: function(){
+                $.notify({
+                    icon: "tim-icons icon-alert-circle-exc",
+                    message: "<b>删除失败</b>"
+                }, {
+                    type: "danger",
+                    timer: 2000,
+                    placement: {
+                        from: 'top',
+                        align: 'center'
+                    }
+                });
+        }})
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base href="../">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon.png">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <title>
+        借阅人管理系统
+    </title>
+    <!-- Nucleo Icons -->
+    <link th:href="@{css/nucleo-icons.css}" rel="stylesheet" />
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/all.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link th:href="@{css/black-dashboard.css}" rel="stylesheet" />
+    <!-- Plugin file -->
+    <link rel="stylesheet" href="css/addons/datatables.min.css">
+    <style>
+        * {
+            -webkit-user-drag: none;
+        }
+        .pagination .page-item .page-link {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="fragment::sidebar"></div>
+    <div class="main-panel">
+        <div th:replace="fragment::navbar"></div>
+        <div class="content" id="demo">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card ">
+                        <div class="card-header">
+                            <h4 class="title">借阅人管理列表</h4>
+                            <button class="btn btn-fill btn-success btn-icon" data-toggle='modal' data-target='#myModal' style="position: absolute; z-index: 3" onclick="addData()">
+                                <i class="tim-icons icon-simple-add">  </i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <table class="table" id="mdbtable">
+                                    <thead>
+                                    <tr>
+                                        <th>姓名</th>
+                                        <th>身份证号</th>
+                                        <th>性别</th>
+                                        <th>年龄</th>
+                                        <th>联系电话</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragment::footer"></div>
+    </div>
+    <div class="modal fade modal-black" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="modal-content">
+            </div>
+        </div>
+    </div>
+</div>
+<form action="manage/readerManage" method="post" id="delete">
+    <input type="hidden" name="delete" value="true">
+    <input type="hidden" name="rid" id="rid">
+</form>
+
+<script th:src="@{js/core/jquery.min.js}"></script>
+<script th:src="@{js/core/popper.min.js}"></script>
+<script th:src="@{js/core/bootstrap.min.js}"></script>
+<script th:src="@{js/plugins/bootstrap-notify.js}"></script>
+<script th:src="@{js/plugins/perfect-scrollbar.jquery.min.js}"></script>
+<script th:src="@{js/black-dashboard.js}"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- Plugin file -->
+<script src="js/addons/datatables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var table = $('#mdbtable').dataTable(   {
+                "language" : {
+                    sProcessing : "处理中...",
+                    sLengthMenu : "显示 _MENU_ 项结果",
+                    sZeroRecords : "没有匹配结果",
+                    sInfo : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                    sInfoEmpty : "显示第 0 至 0 项结果，共 0 项",
+                    sInfoFiltered : "(由 _MAX_ 项结果过滤)",
+                    sInfoPostFix : "",
+                    sSearch : "搜索:",
+                    sUrl : "",
+                    sEmptyTable : "档案中没有借阅人信息",
+                    sLoadingRecords : "载入中...",
+                    sInfoThousands : ",",
+                    oPaginate : {
+                        sFirst : "首页",
+                        sPrevious : "上页",
+                        sNext : "下页",
+                        sLast : "末页"
+                    },
+                    "oAria" : {
+                        "sSortAscending" : ": 以升序排列此列",
+                        "sSortDescending" : ": 以降序排列此列"
+                    }
+                },
+                "lengthChange": false,
+                "pageLength": 10,
+                "pagingType": "full_numbers",
+                "ajax": {
+                    url: "/readerManage/table",
+                    dataSrc: function (json){
+                        for (var i = 0; i < json.length; i++) {
+                            if (json[i].rage == '')
+                                json[i].rage = '保密';
+                        }
+                        return json;
+                    }
+                },
+                "columns": [
+                    { "name": "姓名", "data": "rname", "defaultContent": "" },
+                    { "name": "身份证号", "data": "rid", "defaultContent": "" },
+                    { "name": "性别", "data": "rsex", "defaultContent": "" },
+                    { "name": "年龄", "data": "rage", "defaultContent": "" },
+                    { "name": "联系方式", "data": "rtel", "defaultContent": "" },
+                    { "name": "操作", "data": null, "orderable": false, "render": function(data, type, row, meta){
+                            return "<button class='btn btn-fill btn-primary' onclick='location.href=\"manage/readerManage/readerEdit?rid=" + row.rid + "\"'>修改</button>" +
+                                "&emsp;" +
+                                "<button class='btn btn-fill btn-danger' value='" + row.rid + "' data-toggle='modal' data-target='#myModal' onclick=\"deleteData('"+row.rid+"','"+row.rname+"')\">删除</button>"
+                        }}
+                ],
+            }
+        )
+    });
+    function deleteReader(){
+        $('#delete').submit();
+    }
+    function addData(){
+        $('#modal-content').html("<div class=\"modal-header\">\n" +
+            "                    <h4 class=\"modal-title\" id=\"myModalLabel\">\n" +
+            "                        添加新借阅人\n" +
+            "                    </h4>\n" +
+            "                </div>\n" +
+            "                <div class=\"modal-body\">\n" +
+            "                    <form id=\"add\" method=\"post\" action=\"manage/readerManage\" name='addForm'>\n" +
+            "                        <div class=\"row\">\n" +
+            "                            <div class=\"col-md-12 pb-md-1\">\n" +
+            "                                <div class=\"form-group\">\n" +
+            "                                    <label>身份证号</label>\n" +
+            "                                    <input name=\"rid\" type=\"text\" class=\"form-control\" placeholder=\"必填\" required>\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                        <div class=\"row\">\n" +
+            "                            <div class=\"col-md-10 pr-md-1\">\n" +
+            "                                <div class=\"form-group\">\n" +
+            "                                    <label>姓名</label>\n" +
+            "                                    <input name=\"rname\" type=\"text\" class=\"form-control\" placeholder=\"必填\" required>\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                            <div class=\"col-md-2 pl-md-1\">\n" +
+            "                                <div class=\"form-group\">\n" +
+            "                                    <label>年龄</label>\n" +
+            "                                    <input name=\"rage\" type=\"text\" class=\"form-control\" placeholder=\"选填\">\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                        <div class=\"row\">\n" +
+            "                            <div class=\"col-md-3 pr-md-1\">\n" +
+            "                                <div class=\"form-group\">\n" +
+            "                                    <label>性别</label>\n" +
+            "                                    <input id=\"rsex\" name=\"rsex\" type=\"text\" class=\"form-control\" placeholder='请选择' onfocus=\"this.blur()\" required>\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                            <div class=\"col-md-2 pl-sm-0\">\n" +
+            "                                <br/>\n" +
+            "                                <h6></h6>\n" +
+            "                                <div class=\"dropdown\">\n" +
+            "                                    <button href=\"#\" class=\"dropdown-toggle btn btn-sm\" data-toggle=\"dropdown\">选择\n" +
+            "                                    </button>\n" +
+            "                                    <ul class=\"dropdown-menu dropdown-menu-sm dropdown-black\">\n" +
+            "                                        <li><a href=\"javascript:void(0)\" onclick=\"document.getElementById('rsex').setAttribute('value', '男')\" class=\"dropdown-item\">男</a></li>\n" +
+            "                                        <li class=\"dropdown-divider\"></li>\n" +
+            "                                        <li><a href=\"javascript:void(0)\" onclick=\"document.getElementById('rsex').setAttribute('value', '女')\" class=\"dropdown-item\">女</a></li>\n" +
+            "                                    </ul>\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                            <div class=\"col-md-7 pb-md-1\">\n" +
+            "                                <div class=\"form-group\">\n" +
+            "                                    <label>联系电话</label>\n" +
+            "                                    <input id=\"rtel\" name=\"rtel\" type=\"text\" class=\"form-control\" placeholder='必填' required>\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                    </form>\n" +
+            "                </div>\n" +
+            "                <div class=\"modal-footer\">\n" +
+            "                    <button type=\"submit\" class=\"btn btn-success btn-wd\" form='add'>\n" +
+            "                        确认添加\n" +
+            "                    </button>\n" +
+            "                    <button type=\"button\" class=\"btn btn-default btn-wd\" data-dismiss=\"modal\">\n" +
+            "                        取消\n" +
+            "                    </button>\n" +
+            "                </div>");
+    }
+    function deleteData(rid, rname){
+        $('#modal-content').html("<div class='modal-header'>\n" +
+            "                    <h4 class='modal-title' id='myModalLabel'>\n" +
+            "                        是否确认删除？\n" +
+            "                    </h4>\n" +
+            "                </div>\n" +
+            "                <div class='modal-body' id='modal-body'>\n" +
+            "                    身份证： " + rid +"\n" +
+            "                    <br/>\n" +
+            "                    姓名： " + rname + "\n" +
+            "                </div>\n" +
+            "                <div class='modal-footer'>\n" +
+            "                    <button type='button' class='btn btn-danger' data-dismiss='modal' onclick=deleteReader()>\n" +
+            "                        确认删除\n" +
+            "                    </button>\n" +
+            "                    <button type='button' class='btn btn-default' data-dismiss='modal'>\n" +
+            "                        取消\n" +
+            "                    </button>\n" +
+            "                </div>"
+        )
+        $('#rid').attr('value', rid);
+    }
+</script>
+<script th:inline="javascript">
+    var msg = [[${msg}]];
+    var msgLevel = [[${msgLevel}]];
+    var msgIcon = [[${msgIcon}]];
+    if(msg!=null){
+        $.notify({
+            icon: "tim-icons " + msgIcon,
+            message: "<b>" + msg + "</b>"
+        }, {
+            type: msgLevel,
+            timer: 2000,
+            placement: {
+                from: 'top',
+                align: 'center'
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录中...</title>
+    <script th:inline="javascript">
+        var permission = [[${session.permission}]]
+        if(permission == 'm')
+            window.location.href = 'manage/bookManage';
+        else if(permission == 's')
+            window.location.href = 'manage/superManage';
+        else
+            window.location.href = 'login';
+    </script>
+</head>
+<body>
+
+</body>
+</html>

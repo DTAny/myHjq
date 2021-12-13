@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base href="../">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon.png">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <title>
+        书籍管理系统
+    </title>
+    <!-- Nucleo Icons -->
+    <link th:href="@{css/nucleo-icons.css}" rel="stylesheet" />
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/all.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link th:href="@{css/black-dashboard.css}" rel="stylesheet" />
+    <!-- Plugin file -->
+    <link rel="stylesheet" href="css/addons/datatables.min.css">
+    <style>
+        * {
+            -webkit-user-drag: none;
+        }
+        .pagination .page-item .page-link {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="fragment::sidebar"></div>
+    <div class="main-panel">
+        <div th:replace="fragment::navbar"></div>
+        <div class="content" id="demo">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card ">
+                        <div class="card-header">
+                            <h4 class="title">图书管理列表</h4>
+                            <button class="btn btn-fill btn-success btn-icon" data-toggle='modal' data-target='#myModal' style="position: absolute; z-index: 3" onclick="addData()">
+                                <i class="tim-icons icon-simple-add">  </i>
+                            </button>
+                            <button class="btn btn-fill btn-warning" data-toggle='modal' data-target='#myModal' style="position: absolute; z-index: 3; left: 100px" onclick="lendBook()">
+                                借书
+                            </button>
+                            <button class="btn btn-fill btn-warning" data-toggle='modal' data-target='#myModal' style="position: absolute; z-index: 3; left: 250px" onclick="">
+                                还书
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <table class="table" id="mdbtable">
+                                    <thead>
+                                    <tr>
+                                        <th>图书编号</th>
+                                        <th>书名</th>
+                                        <th>作者</th>
+                                        <th>可借阅状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragment::footer"></div>
+    </div>
+    <div class="modal fade modal-black" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="modal-content">
+                <form action="manage/bookManage" method="post" id="lend">
+                    <div class="modal-header">
+                        <h3>归还书籍</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12 pb-md-1">
+                                <div class="form-group">
+                                    <label>借阅人身份证号</label>
+                                    <input type="text" placeholder="必填" name="rid" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 pb-md-1">
+                                <div class="form-group">
+                                    <label>图书编号</label>
+                                    <input type="text" placeholder="必填" name="bid" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success btn-wd">
+                            提交
+                        </button>
+                        <button type="button" class="btn btn-default btn-wd" data-dismiss="modal">
+                            取消
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<form action="manage/bookManage" method="post" id="delete">
+    <input type="hidden" name="delete" value="true">
+    <input type="hidden" name="bid" id="bid">
+</form>
+
+<script th:src="@{js/core/jquery.min.js}"></script>
+<script th:src="@{js/core/popper.min.js}"></script>
+<script th:src="@{js/core/bootstrap.min.js}"></script>
+<script th:src="@{js/plugins/bootstrap-notify.js}"></script>
+<script th:src="@{js/plugins/perfect-scrollbar.jquery.min.js}"></script>
+<script th:src="@{js/black-dashboard.js}"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- Plugin file -->
+<script src="js/addons/datatables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var table = $('#mdbtable').dataTable(   {
+            "language" : {
+                sProcessing : "处理中...",
+                sLengthMenu : "显示 _MENU_ 项结果",
+                sZeroRecords : "没有匹配结果",
+                sInfo : "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                sInfoEmpty : "显示第 0 至 0 项结果，共 0 项",
+                sInfoFiltered : "(由 _MAX_ 项结果过滤)",
+                sInfoPostFix : "",
+                sSearch : "搜索:",
+                sUrl : "",
+                sEmptyTable : "书库中没有书籍存在",
+                sLoadingRecords : "载入中...",
+                sInfoThousands : ",",
+                oPaginate : {
+                    sFirst : "首页",
+                    sPrevious : "上页",
+                    sNext : "下页",
+                    sLast : "末页"
+                },
+                "oAria" : {
+                    "sSortAscending" : ": 以升序排列此列",
+                    "sSortDescending" : ": 以降序排列此列"
+                }
+            },
+            "lengthChange": false,
+            "pageLength": 10,
+            "pagingType": "full_numbers",
+            "ajax": {
+                url: "/bookManage/table",
+                dataSrc: ""
+            },
+            "columns": [
+                { "name": "图书编号", "data": "bid", "defaultContent": "" },
+                { "name": "书名", "data": "bname", "defaultContent": "" },
+                { "name": "作者", "data": "author", "defaultContent": "" },
+                { "name": "可借阅状态", "data": null, "render": function(data, type, row, meta){
+                    return row.state?
+                        " <i class=\'tim-icons icon-check-2\' style='color: greenyellow'></i>":
+                        "  <i class=\'tim-icons icon-simple-remove\' style='color: red'></i>";
+                    } },
+                { "name": "操作", "data": null, "orderable": false, "render": function(data, type, row, meta){
+                    return "<button class='btn btn-fill btn-primary' onclick='location.href=\"manage/bookManage/bookEdit?bid=" + row.bid + "\"'>修改</button>" +
+                        "&emsp;" +
+                        "<button class='btn btn-fill btn-danger' value='" + row.bid + "' data-toggle='modal' data-target='#myModal' onclick=\"deleteData('"+row.bid+"','"+row.bname+"','"+row.author+"')\">删除</button>"
+                }}
+            ],
+            }
+        )
+    });
+    function deleteBook(){
+        $('#delete').submit();
+    }
+    function lendBook(){
+        $('#modal-content').html('<form action="manage/bookManage" method="post" id="lend">\n' +
+            '                    <div class="modal-header">\n' +
+            '                        <h3>外借书籍</h3>\n' +
+            '                    </div>\n' +
+            '                    <div class="row">\n' +
+            '                        <div class="col-md-6 border-right">\n' +
+            '                            <div class="modal-header">\n' +
+            '                                <b>通过图书编号借书</b>\n' +
+            '                            </div>\n' +
+            '                            <div class="modal-body">\n' +
+            '                                <div class="row">\n' +
+            '                                    <div class="col-md-12 pb-md-1">\n' +
+            '                                        <div class="form-group">\n' +
+            '                                            <label>图书编号</label>\n' +
+            '                                            <input type="number" name="bid" class="form-control">\n' +
+            '                                        </div>\n' +
+            '                                    </div>\n' +
+            '                                </div>\n' +
+            '                            </div>\n' +
+            '                        </div>\n' +
+            '                        <div class="col-md-6">\n' +
+            '                            <div class="modal-header">\n' +
+            '                                <b>通过书名与作者借书</b>\n' +
+            '                            </div>\n' +
+            '                            <div class="modal-body">\n' +
+            '                                <div class="row">\n' +
+            '                                    <div class="col-md-12 pb-md-1">\n' +
+            '                                        <div class="form-group">\n' +
+            '                                            <label>书名</label>\n' +
+            '                                            <input type="text" name="bname" class="form-control">\n' +
+            '                                        </div>\n' +
+            '                                    </div>\n' +
+            '                                </div>\n' +
+            '                                <div class="row">\n' +
+            '                                    <div class="col-md-12 pb-md-1">\n' +
+            '                                        <div class="form-group">\n' +
+            '                                            <label>作者名</label>\n' +
+            '                                            <input type="text" name="author" class="form-control">\n' +
+            '                                        </div>\n' +
+            '                                    </div>\n' +
+            '                                </div>\n' +
+            '                            </div>\n' +
+            '                        </div>\n' +
+            '                    </div>\n' +
+            '                    <br/>\n' +
+            '                    <div class="modal-body">\n' +
+            '                        <div class="row">\n' +
+            '                            <div class="col-md-12 pb-md-1">\n' +
+            '                                <div class="form-group">\n' +
+            '                                    <label>借阅人身份证号</label>\n' +
+            '                                    <input type="text" placeholder="必填" name="rid" class="form-control" required>\n' +
+            '                                </div>\n' +
+            '                            </div>\n' +
+            '                        </div>\n' +
+            '                        <div class="row">\n' +
+            '                            <div class="col-md-12 pb-md-1">\n' +
+            '                                <div class="form-group">\n' +
+            '                                    <label>归还期限(月)</label>\n' +
+            '                                    <input type="number" placeholder="必填" name="ddl" class="form-control" required>\n' +
+            '                                </div>\n' +
+            '                            </div>\n' +
+            '                        </div>\n' +
+            '                    </div>\n' +
+            '                    <div class="modal-footer">\n' +
+            '                        <button type="submit" class="btn btn-success btn-wd">\n' +
+            '                            提交\n' +
+            '                        </button>\n' +
+            '                        <button type="button" class="btn btn-default btn-wd" data-dismiss="modal">\n' +
+            '                            取消\n' +
+            '                        </button>\n' +
+            '                    </div>\n' +
+            '                </form>')
+    }
+    function addData(){
+        $('#modal-content').html("<div class=\"modal-header\">\n" +
+            "                    <h4 class=\"modal-title\" id=\"myModalLabel\">\n" +
+            "                        添加新图书\n" +
+            "                    </h4>\n" +
+            "                </div>\n" +
+            "                <div class=\"modal-body\">\n" +
+            "                    <form id=\"add\" method=\"post\" action=\"manage/bookManage\" name='addForm'>\n" +
+            "                        <div class=\"row\">\n" +
+            "                            <div class=\"col-md-12 pb-md-1\">\n" +
+            "                                <div class=\"form-group\">\n" +
+            "                                    <label>书名</label>\n" +
+            "                                    <input name=\"bname\" type=\"text\" class=\"form-control\" placeholder=\"必填\" required>\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                        <div class=\"row\">\n" +
+            "                            <div class=\"col-md-12 pb-md-1\">\n" +
+            "                                <div class=\"form-group\">\n" +
+            "                                    <label>作者</label>\n" +
+            "                                    <input name=\"author\" type=\"text\" class=\"form-control\" placeholder=\"必填\" required>\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                        <div class=\"row\">\n" +
+            "                            <div class=\"col-md-3 pr-md-1\">\n" +
+            "                                <div class=\"form-group\">\n" +
+            "                                    <label>可借阅状态</label>\n" +
+            "                                    <input id=\"state\" name=\"state\" type=\"text\" class=\"form-control\" onfocus=\"this.blur()\" value=\"可借\" style=\"color: white\">\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                            <div class=\"col-sm-1 pl-sm-0\">\n" +
+            "                                <br/>\n" +
+            "                                <h6></h6>\n" +
+            "                                <div class=\"dropdown\">\n" +
+            "                                    <button href=\"#\" class=\"dropdown-toggle btn btn-sm\" data-toggle=\"dropdown\">更改\n" +
+            "                                    </button>\n" +
+            "                                    <ul class=\"dropdown-menu dropdown-menu-sm dropdown-black\">\n" +
+            "                                        <li><a href=\"javascript:void(0)\" onclick=\"document.getElementById('state').setAttribute('value', '可借')\" class=\"dropdown-item\">设为可借</a></li>\n" +
+            "                                        <li class=\"dropdown-divider\"></li>\n" +
+            "                                        <li><a href=\"javascript:void(0)\" onclick=\"document.getElementById('state').setAttribute('value', '已借')\" class=\"dropdown-item\">设为已借</a></li>\n" +
+            "                                    </ul>\n" +
+            "                                </div>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                    </form>\n" +
+            "                </div>\n" +
+            "                <div class=\"modal-footer\">\n" +
+            "                    <button type=\"submit\" class=\"btn btn-success btn-wd\" form='add'>\n" +
+            "                        确认添加\n" +
+            "                    </button>\n" +
+            "                    <button type=\"button\" class=\"btn btn-default btn-wd\" data-dismiss=\"modal\">\n" +
+            "                        取消\n" +
+            "                    </button>\n" +
+            "                </div>");
+    }
+    function deleteData(bid, bname, author){
+        $('#modal-content').html("<div class='modal-header'>\n" +
+            "                    <h4 class='modal-title' id='myModalLabel'>\n" +
+            "                        是否确认删除？\n" +
+            "                    </h4>\n" +
+            "                </div>\n" +
+            "                <div class='modal-body' id='modal-body'>\n" +
+            "                    编号： " + bid +"\n" +
+            "                    <br/>\n" +
+            "                    书名： " + bname + "\n" +
+            "                    <br/>\n" +
+            "                    作者： " + author + "\n" +
+            "                </div>\n" +
+            "                <div class='modal-footer'>\n" +
+            "                    <button type='button' class='btn btn-danger' data-dismiss='modal' onclick=deleteBook()>\n" +
+            "                        确认删除\n" +
+            "                    </button>\n" +
+            "                    <button type='button' class='btn btn-default' data-dismiss='modal'>\n" +
+            "                        取消\n" +
+            "                    </button>\n" +
+            "                </div>"
+        )
+        $('#bid').attr('value', bid);
+    }
+</script>
+<script th:inline="javascript">
+    var msg = [[${msg}]];
+    var msgLevel = [[${msgLevel}]];
+    var msgIcon = [[${msgIcon}]];
+    if(msg!=null){
+        $.notify({
+            icon: "tim-icons " + msgIcon,
+            message: "<b>" + msg + "</b>"
+        }, {
+            type: msgLevel,
+            timer: 2000,
+            placement: {
+                from: 'top',
+                align: 'center'
+            }
+        });
+    }
+</script>
+</body>
+</html>

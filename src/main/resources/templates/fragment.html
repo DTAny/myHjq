@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="sidebar" th:fragment="sidebar" style="height: 90%">
+    <div class="sidebar-wrapper">
+        <div class="logo">
+            <a href="javascript:void(0)" class="simple-text logo-mini">
+                欢迎:
+            </a>
+            <a href="javascript:void(0)" class="simple-text logo-normal" th:text="${session.get('name')}">
+                管理员
+            </a>
+        </div>
+        <ul class="nav">
+            <li th:class="${#request.getRequestURI().contains('/manage/bookManage')?'active':''}" th:if="${session.permission} == m">
+                <a href="/manage/bookManage" >
+                    <i class="tim-icons icon-book-bookmark"></i>
+                    <p>图书管理</p>
+                </a>
+            </li>
+            <li th:class="${#request.getRequestURI().contains('/manage/readerManage')?'active':''}" th:if="${session.permission} == m">
+                <a href="/manage/readerManage">
+                    <i class="tim-icons icon-single-02"></i>
+                    <p>借阅人管理</p>
+                </a>
+            </li>
+            <li th:class="${#request.getRequestURI().contains('/manage/logManage')?'active':''}" th:if="${session.permission} == m">
+                <a href="/manage/logManage">
+                    <i class="tim-icons icon-notes"></i>
+                    <p>借阅记录</p>
+                </a>
+            </li>
+            <li th:class="${#request.getRequestURI().contains('/manage/superManage')?'active':''}" th:if="${session.permission} == s">
+                <a href="/manage/superManage">
+                    <i class="tim-icons icon-laptop"></i>
+                    <p>管理人员</p>
+                </a>
+            </li>
+            <li style="position: absolute; bottom: 5%">
+                <form name="logout" action='/login' method="post">
+                    <input type="hidden" value="true" name="logout">
+                </form>
+                <a href="javascript:void(0)" onclick="document.logout.submit()">
+                    <i class="tim-icons icon-button-power"></i>
+                    <p>登出</p>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-absolute navbar-transparent" th:fragment="navbar">
+    <div class="container-fluid">
+        <div class="navbar-wrapper">
+            <div class="navbar-toggle d-inline">
+                <button type="button" class="navbar-toggler">
+                    <span class="navbar-toggler-bar bar1"></span>
+                    <span class="navbar-toggler-bar bar2"></span>
+                    <span class="navbar-toggler-bar bar3"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="javascript:void(0)" style="color: white">图书馆管理系统</a>
+        </div>
+            <ul class="navbar-nav ml-auto">
+                <li class="dropdown">
+                    <div style="height: 50px"></div>
+                </li>
+            </ul>
+    </div>
+</nav>
+
+<footer class="footer" th:fragment="footer">
+    <div class="container-fluid">
+        <div class="copyright">
+            仅用于学习交流
+        </div>
+        <div class="copyright">
+            ©2021 由邓天傲制作
+        </div>
+    </div>
+</footer>
+</body>
+</html>

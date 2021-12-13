@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base href="../../">
+    <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon.png">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <title>
+        管理员信息编辑
+    </title>
+    <link rel="stylesheet" href="/css/mdb.min.css">
+    <!-- Nucleo Icons -->
+    <link th:href="@{/css/nucleo-icons.css}" rel="stylesheet" />
+    <!-- CSS Files -->
+    <link th:href="@{/css/black-dashboard.css}" rel="stylesheet" />
+    <style>
+        * {
+            -webkit-user-drag: none;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div th:replace="fragment::sidebar"></div>
+    <div class="main-panel">
+        <div th:replace="fragment::navbar"></div>
+
+        <div class="content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <button class="btn btn-success btn-wd" onclick="location.href='/manage/superManage'">
+                                <i class="tim-icons icon-minimal-left"></i>
+                                返回
+                            </button>
+                            <h1></h1>
+                            <h4 class="title">管理员信息修改</h4>
+                        </div>
+                        <div class="card-body">
+                            <form name="edit" th:action="'/manage/superManage/superEdit?mid='+ ${manager.getMid}" method="post">
+                                <div class="row">
+                                    <div class="col-md-6 pb-md-1">
+                                        <div class="form-group">
+                                            <label>管理员编号</label>
+                                            <input name="mid" type="number" class="form-control" th:value="${manager.getMid()}" readonly style="color: white">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pb-md-1">
+                                        <div class="form-group">
+                                            <label>管理员账号</label>
+                                            <input name="macc" type="text" class="form-control" placeholder="必填" th:value="${manager.getMacc()}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pb-md-1">
+                                        <div class="form-group">
+                                            <label>管理员密码</label>
+                                            <input name="mpwd" type="text" class="form-control" placeholder="必填" th:value="${manager.getMpwd()}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pb-md-1">
+                                        <div class="form-group">
+                                            <label>管理员姓名</label>
+                                            <input name="mname" type="text" class="form-control" placeholder="管理员" th:value="${manager.getMname()}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-sm-auto pr-md-1">
+                                        <button type="submit" class="btn btn-fill btn-primary bb">保存</button>
+                                    </div>
+                                    <div class="col-sm-auto pr-md-1">
+                                        <button type="reset" class="btn btn-fill btn-warning bb">重置</button>
+                                    </div>
+                                    <div class="col-sm-auto pr-md-1">
+                                        <button type="button" class="btn btn-fill btn-danger bb" data-toggle="modal" data-target="#myModal">删除</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragment::footer"></div>
+    </div>
+    <div class="modal fade modal-default" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">
+                        是否确认删除？
+                    </h4>
+                </div>
+                <div class="modal-body" th:utext="'身份证号: ' + ${manager.getMid()} + '<br/>姓名: ' + ${manager.getMname()}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick=deleteManager()>
+                        确认删除
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<form action="/manage/superManage" method="post" id="delete">
+    <input type="hidden" name="delete" value="true">
+</form>
+
+<script th:src="@{/js/core/jquery.min.js}"></script>
+<script th:src="@{/js/core/popper.min.js}"></script>
+<script th:src="@{/js/core/bootstrap.min.js}"></script>
+<script th:src="@{/js/plugins/bootstrap-notify.js}"></script>
+<script th:src="@{/js/plugins/perfect-scrollbar.jquery.min.js}"></script>
+<script th:src="@{/js/black-dashboard.js}"></script>
+<script th:inline="javascript">
+    var msg = [[${msg}]];
+    var msgLevel = [[${msgLevel}]];
+    var msgIcon = [[${msgIcon}]];
+    if(msg!=null){
+        $.notify({
+            icon: "tim-icons " + msgIcon,
+            message: "<b>" + msg + "</b>"
+        }, {
+            type: msgLevel,
+            timer: 2000,
+            placement: {
+                from: 'top',
+                align: 'center'
+            }
+        });
+    }
+
+    function deleteManager(){
+        $.ajax({url: "/manage/superManage", data: {"delete": true, "mid": [[${manager.getMid()}]]}, type: "post", success: function(){
+                $('.bb').attr("disabled", true);
+                $('#delete').submit();
+            }, error: function(){
+                $.notify({
+                    icon: "tim-icons icon-alert-circle-exc",
+                    message: "<b>删除失败</b>"
+                }, {
+                    type: "danger",
+                    timer: 2000,
+                    placement: {
+                        from: 'top',
+                        align: 'center'
+                    }
+                });
+            }})
+    }
+</script>
+</body>
+</html>
